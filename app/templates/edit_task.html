@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Chi Tiết Công Việc - GTM{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Left Column: Edit Task Form / Details -->
+    <div class="col-lg-7">
+        <div class="glass-panel p-4 p-sm-5">
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <a href="{{ url_for('groups.inside_group', group_id=task.group_id) }}" class="btn btn-sm btn-glass">
+                    <i class="bi bi-chevron-left"></i> Quay lại nhóm
+                </a>
+                <div>
+                    <h2 class="h3 fw-bold text-light mb-0">{% if is_admin %}Chỉnh Sửa Công Việc{% else %}Chi Tiết Công Việc{% endif %}</h2>
+                    <p class="text-secondary small mb-0">Trạng thái: 
+                        <span class="badge-status 
+                            {% if task.status == 'proposed' %}badge-proposed
+                            {% elif task.status == 'todo' %}badge-todo
+                            {% elif task.status == 'in_progress' %}badge-inprogress
+                            {% elif task.status == 'pending_review' %}badge-review
+                            {% else %}badge-completed{% endif %} ms-1">
+                            {{ task.status|upper }}
+                        </span>
+                    </p>
+                </div>
+            </div>
+
+            {% if error %}
+            <div class="alert alert-danger bg-danger bg-opacity-10 border-danger border-opacity-20 text-danger small" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error }}
+            </div>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('tasks.edit_task', task_id=task.task_id) }}">
+                <fieldset {% if not is_admin %}disabled{% endif %} class="border-0 p-0 m-0">
+                    <div class="mb-3">
+                        <label class="form-label text-secondary small">Tiêu đề công việc <span class="text-danger">*</span></label>
+                        <input type="text" name="title" class="form-control form-control-glass" value="{{ task.title }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-secondary small">Mô tả công việc</label>
+                        <textarea name="description" rows="4" class="form-control form-control-glass">{{ task.description or '' }}</textarea>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-secondary small">Ngày bắt đầu</label>
+                            <input type="date" name="startDate" class="form-control form-control-glass" value="{{ task.start_date.strftime('%Y-%m-%d') if task.start_date else '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-secondary small">Hạn chót <span class="text-danger">*</span></label>
+                            <input type="date" name="deadline" class="form-control form-control-glass" value="{{ task.deadline.strftime('%Y-%m-%d') if task.deadline else '' }}" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-secondary small">Độ ưu tiên</label>
+                        <select class="form-select form-control-glass" name="priority">
+                            <option value="low" {% if task.priority == 'low' %}selected{% endif %}>Thấp</option>
+                            <option value="medium" {% if task.priority == 'medium' %}selected{% endif %}>Trung bình</option>
+                            <option value="high" {% if task.priority == 'high' %}selected{% endif %}>Cao</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label text-secondary small d-block">Phân công thành viên <span class="text-danger">*</span></label>
+                        <div class="p-3 bg-dark bg-opacity-40 border border-glass rounded-3" style="max-height: 200px; overflow-y: auto;">
+                            {% if is_admin %}
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="selectAllMembers" onclick="toggleSelectAll(this)">
+                                <label class="form-check-label text-light fw-bold" for="selectAllMembers">
+                                    CHỌN TẤT CẢ THÀNH VIÊN
+                                </label>
+                            </div>
+                            <hr class="border-glass">
+                            {% endif %}
+                            {% for m in members %}
+                            <div class="form-check mb-2">
+                                <input class="form-check-input member-checkbox" type="checkbox" name="assignedUsers" value="{{ m.user_id }}" id="member_{{ m.user_id }}" {% if m.user_id in assigned_users %}checked{% endif %}>
+                                <label class="form-check-label text-secondary" for="member_{{ m.user_id }}">
+                                    {{ m.full_name or m.username }} (@{{ m.username }})
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </fieldset>
+
+                {% if is_admin %}
+                <button type="submit" class="btn btn-gradient w-100 py-2.5">
+                    <i class="bi bi-floppy me-2"></i>Lưu Thay Đổi
+                </button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <!-- Right Column: Comments Section -->
+    <div class="col-lg-5">
+        <div class="glass-panel p-4 h-100 d-flex flex-column">
+            <h4 class="h5 fw-bold text-light mb-3"><i class="bi bi-chat-text me-2"></i>Trao đổi thảo luận ({{ comments|length }})</h4>
+            
+            <!-- Comment box inputs -->
+            <form action="{{ url_for('tasks.add_comment', task_id=task.task_id) }}" method="POST" class="mb-4">
+                <div class="input-group">
+                    <input type="text" name="content" class="form-control form-control-glass" placeholder="Viết bình luận của bạn..." required>
+                    <button class="btn btn-gradient" type="submit">
+                        <i class="bi bi-send-fill"></i>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Comments List -->
+            <div class="flex-grow-1" style="max-height: 450px; overflow-y: auto;">
+                {% if comments %}
+                    {% for c in comments %}
+                    <div class="comment-box mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-bold text-info small">{{ c.full_name or c.username }}</span>
+                            <span class="text-secondary" style="font-size: 0.75rem;">
+                                {{ c.created_at.strftime('%H:%M %d/%m/%Y') if c.created_at else '-' }}
+                            </span>
+                        </div>
+                        <p class="text-light small mb-0">{{ c.content }}</p>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center text-secondary py-5 small">
+                        <i class="bi bi-chat-dots me-1"></i> Chưa có bình luận nào. Hãy bắt đầu thảo luận!
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleSelectAll(master) {
+    var checkboxes = document.getElementsByClassName('member-checkbox');
+    for (var i = 0; i < checkboxes.length; i++) {
+        checkboxes[i].checked = master.checked;
+    }
+}
+</script>
+{% endblock %}

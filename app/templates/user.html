@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}Công Việc Của Tôi - GTM{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h2 fw-bold text-light mb-1">Công Việc Của Tôi</h1>
+        <p class="text-secondary small">Danh sách các công việc được phân công cho bạn</p>
+    </div>
+    <span class="badge bg-secondary px-3 py-2 fs-6">
+        Tổng số: {{ tasks|length }}
+    </span>
+</div>
+
+<div class="glass-panel p-4">
+    <div class="table-responsive">
+        <table class="table table-custom mb-0">
+            <thead>
+                <tr>
+                    <!-- Helper macro to render sort link -->
+                    {% macro sort_link(col_name, label) %}
+                        {% set next_order = 'desc' if current_sort == col_name and current_order == 'asc' else 'asc' %}
+                        <a href="{{ url_for('tasks.user_tasks', sort_by=col_name, order=next_order) }}" class="text-decoration-none text-secondary hover-underline">
+                            {{ label }}
+                            {% if current_sort == col_name %}
+                                {% if current_order == 'asc' %}
+                                    <i class="bi bi-arrow-up-short"></i>
+                                {% else %}
+                                    <i class="bi bi-arrow-down-short"></i>
+                                {% endif %}
+                            {% endif %}
+                        </a>
+                    {% endmacro %}
+                    
+                    <th>{{ sort_link('title', 'Tên công việc') }}</th>
+                    <th>{{ sort_link('group_name', 'Nhóm') }}</th>
+                    <th>{{ sort_link('status', 'Trạng thái') }}</th>
+                    <th>{{ sort_link('priority', 'Độ ưu tiên') }}</th>
+                    <th>{{ sort_link('start_date', 'Ngày bắt đầu') }}</th>
+                    <th>{{ sort_link('deadline', 'Hạn chót') }}</th>
+                    <th>Người giao</th>
+                    <th class="text-end">Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if tasks %}
+                    {% for task in tasks %}
+                    <tr>
+                        <td>
+                            <div class="fw-semibold text-light">{{ task.title }}</div>
+                            {% if task.description %}
+                            <div class="text-secondary small text-truncate" style="max-width: 250px;">{{ task.description }}</div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('groups.inside_group', group_id=task.group_id) }}" class="text-info text-decoration-none hover-underline small">
+                                <i class="bi bi-people me-1"></i>{{ task.group_name }}
+                            </a>
+                        </td>
+                        <td>
+                            {% if task.status == 'proposed' %}
+                                <span class="badge-status badge-proposed"><i class="bi bi-question-circle"></i> Đề xuất</span>
+                            {% elif task.status == 'todo' %}
+                                <span class="badge-status badge-todo"><i class="bi bi-list-task"></i> Cần làm</span>
+                            {% elif task.status == 'in_progress' %}
+                                <span class="badge-status badge-inprogress"><i class="bi bi-play-circle"></i> Đang làm</span>
+                            {% elif task.status == 'pending_review' %}
+                                <span class="badge-status badge-review"><i class="bi bi-eye"></i> Chờ duyệt</span>
+                            {% elif task.status == 'completed' %}
+                                <span class="badge-status badge-completed"><i class="bi bi-check-circle"></i> Hoàn thành</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if task.priority == 'high' %}
+                                <span class="badge-priority badge-prio-high">Cao</span>
+                            {% elif task.priority == 'medium' %}
+                                <span class="badge-priority badge-prio-medium">Trung bình</span>
+                            {% else %}
+                                <span class="badge-priority badge-prio-low">Thấp</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-secondary small">{{ task.start_date or '-' }}</td>
+                        <td class="text-secondary small fw-semibold">{{ task.deadline }}</td>
+                        <td class="text-secondary small">@{{ task.creator_name or 'Hệ thống' }}</td>
+                        <td class="text-end">
+                            <div class="d-inline-flex align-items-center gap-2 flex-wrap justify-content-end">
+                                {% set is_group_admin = (task.my_group_role == 'admin') %}
+                                {% if task.status == "pending_review" and is_group_admin %}
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ url_for('tasks.change_status', task_id=task.task_id, action_type=1) }}" class="btn btn-success py-1 px-2.5">
+                                            <i class="bi bi-check-lg"></i> Duyệt
+                                        </a>
+                                        <a href="{{ url_for('tasks.change_status', task_id=task.task_id, action_type=2) }}" class="btn btn-danger py-1 px-2.5">
+                                            <i class="bi bi-x-lg"></i> Từ chối
+                                        </a>
+                                    </div>
+                                {% elif task.status != "pending_review" and task.status != "completed" %}
+                                    {% if task.status == "proposed" %}
+                                        {% if is_group_admin %}
+                                            <a href="{{ url_for('tasks.change_status', task_id=task.task_id, action_type=1) }}" class="btn btn-sm btn-glass text-warning border-warning border-opacity-35 py-1 px-2.5">
+                                                <i class="bi bi-check-circle me-1"></i> Duyệt Đề xuất
+                                            </a>
+                                        {% else %}
+                                            <span class="text-warning small me-2">
+                                                <i class="bi bi-hourglass-split me-1"></i>Đang chờ duyệt
+                                            </span>
+                                        {% endif %}
+                                    {% else %}
+                                        <a href="{{ url_for('tasks.change_status', task_id=task.task_id, action_type=1) }}" class="btn btn-sm btn-glass text-info border-info border-opacity-35 py-1 px-2" title="Tiếp tục">
+                                            <i class="bi bi-arrow-right"></i>
+                                        </a>
+                                    {% endif %}
+                                {% elif task.status == "completed" and is_group_admin %}
+                                    <a href="{{ url_for('tasks.change_status', task_id=task.task_id, action_type=2) }}" class="btn btn-sm btn-glass text-danger border-danger border-opacity-35 py-1 px-2.5">
+                                        <i class="bi bi-arrow-counterclockwise me-1"></i> Yêu cầu lại
+                                    </a>
+                                {% elif task.status == "pending_review" %}
+                                    <span class="text-secondary small me-2">Đang xem xét...</span>
+                                {% else %}
+                                    <span class="text-success small fw-semibold me-2"><i class="bi bi-check2-all"></i> Hoàn tất</span>
+                                {% endif %}
+
+                                <a href="{{ url_for('tasks.edit_task', task_id=task.task_id) }}" class="btn btn-sm btn-glass text-primary" title="Chi tiết & Thảo luận">
+                                    <i class="bi bi-chat-left-text-fill"></i>
+                                </a>
+                                {% if is_group_admin %}
+                                <a href="{{ url_for('tasks.delete_task', task_id=task.task_id) }}" class="btn btn-sm btn-glass text-danger" title="Xóa" onclick="return confirm('Bạn có chắc chắn muốn xóa công việc này không?');">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center text-secondary py-5 small">
+                            <div class="mb-2 fs-2"><i class="bi bi-clipboard-x"></i></div>
+                            Bạn chưa có công việc nào được phân công.
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
