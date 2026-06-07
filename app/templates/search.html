@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Kết quả tìm kiếm: "{{ keyword }}" - GTM{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h1 class="h2 fw-bold text-light mb-1">Kết Quả Tìm Kiếm</h1>
+    <p class="text-secondary small">Từ khóa: <strong class="text-info">"{{ keyword }}"</strong></p>
+    <div class="d-flex gap-2 mt-2">
+        <span class="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-35 px-3 py-1.5 small">
+            <i class="bi bi-people me-1"></i> {{ groups|length }} Nhóm
+        </span>
+        <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-35 px-3 py-1.5 small">
+            <i class="bi bi-list-check me-1"></i> {{ tasks|length }} Công việc
+        </span>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Section: Groups Found -->
+    <div class="col-md-6">
+        <div class="glass-panel p-4 h-100">
+            <h3 class="h4 fw-bold text-light mb-4 border-bottom border-glass pb-2">
+                <i class="bi bi-people-fill text-primary me-2"></i>Nhóm tìm thấy
+            </h3>
+            
+            {% if groups %}
+                {% for group in groups %}
+                <div class="p-3 bg-dark bg-opacity-30 border border-glass rounded-3 mb-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <div>
+                        <h4 class="h6 fw-bold text-light mb-1">{{ group.group_name }}</h4>
+                        <p class="text-secondary small mb-0">{{ group.description or "Không có mô tả." }}</p>
+                    </div>
+                    <a href="{{ url_for('groups.join_group', join_code=group.join_code) }}" class="btn btn-sm btn-gradient">
+                        <i class="bi bi-person-plus me-1"></i>Xin vào nhóm
+                    </a>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center text-secondary py-5 small">
+                    <i class="bi bi-info-circle me-1"></i> Không tìm thấy nhóm nào khớp từ khóa.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Section: Tasks Found -->
+    <div class="col-md-6">
+        <div class="glass-panel p-4 h-100">
+            <h3 class="h4 fw-bold text-light mb-4 border-bottom border-glass pb-2">
+                <i class="bi bi-card-checklist text-success me-2"></i>Công việc tìm thấy
+            </h3>
+            
+            {% if tasks %}
+                {% for task in tasks %}
+                <div class="p-3 bg-dark bg-opacity-30 border border-glass rounded-3 mb-3">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h4 class="h6 fw-bold text-light mb-0">{{ task.title }}</h4>
+                        {% if task.status == 'proposed' %}
+                            <span class="badge-status badge-proposed"><i class="bi bi-question-circle"></i> Đề xuất</span>
+                        {% elif task.status == 'todo' %}
+                            <span class="badge-status badge-todo"><i class="bi bi-list-task"></i> Cần làm</span>
+                        {% elif task.status == 'in_progress' %}
+                            <span class="badge-status badge-inprogress"><i class="bi bi-play-circle"></i> Đang làm</span>
+                        {% elif task.status == 'pending_review' %}
+                            <span class="badge-status badge-review"><i class="bi bi-eye"></i> Chờ duyệt</span>
+                        {% elif task.status == 'completed' %}
+                            <span class="badge-status badge-completed"><i class="bi bi-check-circle"></i> Hoàn thành</span>
+                        {% endif %}
+                    </div>
+                    
+                    {% if task.description %}
+                    <p class="text-secondary small mb-2">{{ task.description }}</p>
+                    {% endif %}
+                    
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 pt-2 border-top border-glass border-opacity-40">
+                        <div class="text-secondary" style="font-size: 0.8rem;">
+                            Nhóm: <span class="text-info fw-semibold">{{ task.group_name }}</span>
+                        </div>
+                        <div class="text-secondary" style="font-size: 0.8rem;">
+                            Hạn chót: <span class="text-light fw-semibold">{{ task.deadline }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center text-secondary py-5 small">
+                    <i class="bi bi-info-circle me-1"></i> Không tìm thấy công việc nào khớp từ khóa trong các nhóm bạn tham gia.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

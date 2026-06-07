@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}GTM - Group Task Manager{% endblock %}</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Custom Style -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    {% block head %}{% endblock %}
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom py-3">
+        <div class="container">
+            <a class="navbar-brand navbar-brand-gradient" href="{{ url_for('main.home') }}">
+                <i class="bi bi-grid-1x2-fill me-2"></i>GTM
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    {% if session.get('userID') %}
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom {% if request.endpoint == 'main.index' %}active{% endif %}" href="{{ url_for('main.index') }}">
+                            <i class="bi bi-house-door me-1"></i>Trang chủ
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom {% if request.endpoint == 'tasks.user_tasks' %}active{% endif %}" href="{{ url_for('tasks.user_tasks') }}">
+                            <i class="bi bi-list-task me-1"></i>Công việc của tôi
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom {% if request.endpoint == 'groups.create_group' %}active{% endif %}" href="{{ url_for('groups.create_group') }}">
+                            <i class="bi bi-plus-circle me-1"></i>Tạo nhóm
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+
+                {% if session.get('userID') %}
+                <!-- Search Form -->
+                <form class="d-flex me-3" action="{{ url_for('main.search') }}" method="GET">
+                    <div class="input-group">
+                        <input class="form-control form-control-glass bg-transparent border-end-0" type="search" placeholder="Tìm kiếm nhóm, công việc..." name="keyword" value="{{ keyword or '' }}" required>
+                        <button class="btn btn-glass border-start-0" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </form>
+
+                <!-- User Profile & Logout -->
+                <div class="d-flex align-items-center gap-3">
+                    <a href="{{ url_for('auth.profile') }}" class="text-secondary text-decoration-none hover-underline">
+                        <i class="bi bi-person-circle me-1"></i>Chào, <strong class="text-light">{{ session.get('userName') }}</strong>
+                    </a>
+                    <a href="{{ url_for('auth.logout') }}" class="btn btn-sm btn-glass">
+                        <i class="bi bi-box-arrow-right me-1"></i>Đăng xuất
+                    </a>
+                </div>
+                {% else %}
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-sm btn-glass">Đăng nhập</a>
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-sm btn-gradient">Đăng ký</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container py-4 my-3">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category in ['error', 'danger'] else category }} alert-dismissible fade show bg-dark bg-opacity-30 border border-{{ 'danger' if category in ['error', 'danger'] else category }} border-opacity-35 text-{{ 'danger' if category in ['error', 'danger'] else category }} small mb-4" role="alert">
+                        {% if category in ['error', 'danger'] %}
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        {% else %}
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                        {% endif %}
+                        {{ message }}
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    function togglePasswordVisibility(inputId, iconId) {
+        var input = document.getElementById(inputId);
+        var icon = document.getElementById(iconId);
+        if (input.type === "password") {
+            input.type = "text";
+            icon.classList.remove("bi-eye");
+            icon.classList.add("bi-eye-slash");
+        } else {
+            input.type = "password";
+            icon.classList.remove("bi-eye-slash");
+            icon.classList.add("bi-eye");
+        }
+    }
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
