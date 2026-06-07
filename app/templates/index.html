@@ -98,14 +98,12 @@
                                 <div class="d-inline-flex align-items-center gap-2 flex-wrap justify-content-end">
                                     {% if group.is_admin or task.is_assigned_to_me %}
                                         {% if task.status == "pending_review" and group.is_admin %}
-                                            <div class="btn-group btn-group-sm">
-                                                <a href="{{ url_for('tasks.change_status', task_id=task.task_id, action_type=1) }}" class="btn btn-success py-1 px-2.5">
-                                                    <i class="bi bi-check-lg"></i> Duyệt
-                                                </a>
-                                                <a href="{{ url_for('tasks.change_status', task_id=task.task_id, action_type=2) }}" class="btn btn-danger py-1 px-2.5">
-                                                    <i class="bi bi-x-lg"></i> Từ chối
-                                                </a>
-                                            </div>
+                                            <a href="{{ url_for('tasks.change_status', task_id=task.task_id, action_type=1) }}" class="btn btn-sm btn-glass text-success border-success border-opacity-35 py-1 px-2" title="Duyệt">
+                                                <i class="bi bi-check-lg"></i>
+                                            </a>
+                                            <a href="{{ url_for('tasks.change_status', task_id=task.task_id, action_type=2) }}" class="btn btn-sm btn-glass text-danger border-danger border-opacity-35 py-1 px-2" title="Từ chối">
+                                                <i class="bi bi-x-lg"></i>
+                                            </a>
                                         {% elif task.status != "pending_review" and task.status != "completed" %}
                                             {% if task.status == "proposed" %}
                                                 {% if group.is_admin %}
