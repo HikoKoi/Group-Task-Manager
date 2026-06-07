@@ -133,7 +133,12 @@
                                         <span class="text-muted small me-2">Không có quyền</span>
                                     {% endif %}
 
-                                    <a href="{{ url_for('tasks.edit_task', task_id=task.task_id) }}" class="btn btn-sm btn-glass text-primary" title="Chi tiết & Thảo luận">
+                                    {% if group.is_admin %}
+                                    <a href="{{ url_for('tasks.edit_task', task_id=task.task_id) }}" class="btn btn-sm btn-glass text-warning" title="Chỉnh sửa">
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </a>
+                                    {% endif %}
+                                    <a href="{{ url_for('tasks.edit_task', task_id=task.task_id) }}" class="btn btn-sm btn-glass text-primary" title="Thảo luận">
                                         <i class="bi bi-chat-left-text-fill"></i>
                                     </a>
                                     {% if group.is_admin %}

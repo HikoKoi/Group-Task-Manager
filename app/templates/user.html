@@ -87,14 +87,12 @@
                             <div class="d-inline-flex align-items-center gap-2 flex-wrap justify-content-end">
                                 {% set is_group_admin = (task.my_group_role == 'admin') %}
                                 {% if task.status == "pending_review" and is_group_admin %}
-                                    <div class="btn-group btn-group-sm">
-                                        <a href="{{ url_for('tasks.change_status', task_id=task.task_id, action_type=1) }}" class="btn btn-success py-1 px-2.5">
-                                            <i class="bi bi-check-lg"></i> Duyệt
-                                        </a>
-                                        <a href="{{ url_for('tasks.change_status', task_id=task.task_id, action_type=2) }}" class="btn btn-danger py-1 px-2.5">
-                                            <i class="bi bi-x-lg"></i> Từ chối
-                                        </a>
-                                    </div>
+                                    <a href="{{ url_for('tasks.change_status', task_id=task.task_id, action_type=1) }}" class="btn btn-sm btn-glass text-success border-success border-opacity-35 py-1 px-2" title="Duyệt">
+                                        <i class="bi bi-check-lg"></i>
+                                    </a>
+                                    <a href="{{ url_for('tasks.change_status', task_id=task.task_id, action_type=2) }}" class="btn btn-sm btn-glass text-danger border-danger border-opacity-35 py-1 px-2" title="Từ chối">
+                                        <i class="bi bi-x-lg"></i>
+                                    </a>
                                 {% elif task.status != "pending_review" and task.status != "completed" %}
                                     {% if task.status == "proposed" %}
                                         {% if is_group_admin %}
@@ -121,7 +119,12 @@
                                     <span class="text-success small fw-semibold me-2"><i class="bi bi-check2-all"></i> Hoàn tất</span>
                                 {% endif %}
 
-                                <a href="{{ url_for('tasks.edit_task', task_id=task.task_id) }}" class="btn btn-sm btn-glass text-primary" title="Chi tiết & Thảo luận">
+                                {% if is_group_admin %}
+                                <a href="{{ url_for('tasks.edit_task', task_id=task.task_id) }}" class="btn btn-sm btn-glass text-warning" title="Chỉnh sửa">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </a>
+                                {% endif %}
+                                <a href="{{ url_for('tasks.edit_task', task_id=task.task_id) }}" class="btn btn-sm btn-glass text-primary" title="Thảo luận">
                                     <i class="bi bi-chat-left-text-fill"></i>
                                 </a>
                                 {% if is_group_admin %}
