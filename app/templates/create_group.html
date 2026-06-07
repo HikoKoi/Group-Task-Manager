@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Tạo & Gia Nhập Nhóm - GTM{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center g-4">
+    <!-- Box 1: Create Group -->
+    <div class="col-md-6">
+        <div class="glass-panel p-4 p-sm-5 h-100 d-flex flex-column justify-content-between">
+            <div>
+                <div class="text-center mb-4">
+                    <div class="display-6 text-info mb-2"><i class="bi bi-folder-plus"></i></div>
+                    <h2 class="h3 fw-bold text-light mb-1">Tạo Nhóm Mới</h2>
+                    <p class="text-secondary small">Tạo một không gian cộng tác mới cho các dự án của bạn</p>
+                </div>
+
+                <form action="{{ url_for('groups.create_group') }}" method="POST">
+                    <div class="mb-3">
+                        <label class="form-label text-secondary small">Tên nhóm <span class="text-danger">*</span></label>
+                        <input type="text" name="groupName" class="form-control form-control-glass" placeholder="Ví dụ: Nhóm học tập, Dự án Web..." required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label text-secondary small">Mô tả nhóm</label>
+                        <textarea name="description" rows="3" class="form-control form-control-glass" placeholder="Mô tả ngắn gọn về mục tiêu của nhóm..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-gradient w-100 py-2.5">
+                        <i class="bi bi-plus-lg me-2"></i>Tạo Nhóm
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Box 2: Join Group -->
+    <div class="col-md-6">
+        <div class="glass-panel p-4 p-sm-5 h-100 d-flex flex-column justify-content-between">
+            <div>
+                <div class="text-center mb-4">
+                    <div class="display-6 text-purple mb-2" style="color: var(--accent-secondary);"><i class="bi bi-people"></i></div>
+                    <h2 class="h3 fw-bold text-light mb-1">Gia Nhập Nhóm</h2>
+                    <p class="text-secondary small">Sử dụng mã mời được chia sẻ để tham gia vào nhóm hiện có</p>
+                </div>
+
+                <form action="{{ url_for('groups.join_group') }}" method="POST">
+                    <div class="mb-4">
+                        <label class="form-label text-secondary small">Mã mời tham gia <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-end-0 border-glass text-secondary">
+                                <i class="bi bi-key"></i>
+                            </span>
+                            <input type="text" name="joinCode" class="form-control form-control-glass border-start-0 text-center fw-bold fs-5 tracking-widest text-uppercase" placeholder="ABCXYZ" required>
+                        </div>
+                        <div class="form-text text-secondary text-center small mt-2">Mã mời gồm 6 ký tự được cung cấp bởi Quản trị viên nhóm</div>
+                    </div>
+
+                    <button type="submit" class="btn btn-glass w-100 py-2.5">
+                        <i class="bi bi-person-plus me-2"></i>Gửi yêu cầu tham gia
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

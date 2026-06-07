@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %}{{ group.group_name }} - GTM{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Left Column: Group Info & Members -->
+    <div class="col-lg-4">
+        <!-- Group Info Card -->
+        <div class="glass-panel p-4 mb-4">
+            <h1 class="h3 fw-bold text-light mb-2">{{ group.group_name }}</h1>
+            <p class="text-secondary small mb-4">{{ group.description or "Không có mô tả nhóm." }}</p>
+            
+            <div class="p-3 bg-dark bg-opacity-40 border border-glass rounded-3 mb-4">
+                <div class="text-secondary small mb-1">Mã mời tham gia nhóm</div>
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="fs-4 fw-bold text-light tracking-wide" id="joinCodeText">{{ group.join_code }}</span>
+                    <button class="btn btn-sm btn-glass text-info" onclick="copyJoinCode()">
+                        <i class="bi bi-copy"></i> Sao chép
+                    </button>
+                </div>
+            </div>
+
+            <!-- Leave group action -->
+            <a href="{{ url_for('groups.member_out', user_id=session['userID'], group_id=group.group_id) }}" 
+               class="btn btn-sm btn-outline-danger w-100 py-2" 
+               onclick="return confirm('Bạn có chắc chắn muốn rời khỏi nhóm này không?');">
+                <i class="bi bi-box-arrow-left me-1"></i> Rời khỏi nhóm
+            </a>
+        </div>
+
+        <!-- Members Card -->
+        <div class="glass-panel p-4">
+            <h4 class="h5 fw-bold text-light mb-3"><i class="bi bi-people me-2"></i>Thành viên ({{ members|length }})</h4>
+            <div class="list-group list-group-flush bg-transparent">
+                {% for m in members %}
+                <div class="list-group-item bg-transparent border-glass px-0 py-3 d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="fw-semibold text-light">{{ m.full_name or m.username }}</div>
+                        <div class="text-secondary small">@{{ m.username }}</div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        {% if m.role == 'admin' %}
+                        <span class="badge bg-warning text-dark small">Admin</span>
+                        {% else %}
+                        <span class="badge bg-secondary text-light small">Member</span>
+                        {% endif %}
+
+                        {% if is_admin and m.user_id != session['userID'] %}
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-glass px-2" type="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-three-dots-vertical"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end border-glass">
+                                {% if m.role != 'admin' %}
+                                <li>
+                                    <a class="dropdown-item text-warning small" href="{{ url_for('groups.make_admin', user_id=m.user_id, group_id=group.group_id) }}" onclick="return confirm('Bạn muốn nhượng quyền Admin cho người này? Việc này sẽ chuyển tài khoản của bạn thành Member.');">
+                                        <i class="bi bi-shield-up me-2"></i>Chuyển Admin
+                                    </a>
+                                </li>
+                                {% endif %}
+                                <li>
+                                    <a class="dropdown-item text-danger small" href="{{ url_for('groups.kick_member', user_id=m.user_id, group_id=group.group_id) }}" onclick="return confirm('Bạn có chắc chắn muốn trục xuất thành viên này không?');">
+                                        <i class="bi bi-person-x me-2"></i>Trục xuất
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Join requests & Tasks -->
+    <div class="col-lg-8">
+        <!-- Pending Join Requests (Admin Only) -->
+        {% if is_admin and requests %}
+        <div class="glass-panel p-4 mb-4 border border-warning border-opacity-25">
+            <h4 class="h5 fw-bold text-warning mb-3"><i class="bi bi-exclamation-octagon-fill me-2"></i>Yêu cầu gia nhập chờ duyệt ({{ requests|length }})</h4>
+            <div class="list-group list-group-flush bg-transparent">
+                {% for r in requests %}
+                <div class="list-group-item bg-transparent border-glass px-0 py-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <div>
+                        <div class="fw-semibold text-light">{{ r.full_name or r.username }}</div>
+                        <div class="text-secondary small">@{{ r.username }} • Gửi lúc: {{ r.created_at.strftime('%H:%M %d/%m/%Y') if r.created_at else '-' }}</div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="{{ url_for('groups.approve_request', request_id=r.request_id) }}" class="btn btn-sm btn-success">
+                            <i class="bi bi-check-lg me-1"></i>Đồng ý
+                        </a>
+                        <a href="{{ url_for('groups.reject_request', request_id=r.request_id) }}" class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-x-lg me-1"></i>Từ chối
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Tasks Card -->
+        <div class="glass-panel p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                <h4 class="h5 fw-bold text-light mb-0"><i class="bi bi-card-checklist me-2"></i>Danh sách công việc</h4>
+                <a href="{{ url_for('tasks.create_task', group_id=group.group_id) }}" class="btn btn-sm btn-gradient px-3">
+                    <i class="bi bi-plus-lg me-1"></i>Thêm Công Việc
+                </a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-custom mb-0">
+                    <thead>
+                        <tr>
+                            <th>Công việc</th>
+                            <th>Trạng thái</th>
+                            <th>Độ ưu tiên</th>
+                            <th>Bắt đầu</th>
+                            <th>Hạn chót</th>
+                            <th>Người tạo</th>
+                            <th class="text-end">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if tasks %}
+                            {% for task in tasks %}
+                            <tr>
+                                <td>
+                                    <div class="fw-semibold text-light">{{ task.title }}</div>
+                                </td>
+                                <td>
+                                    {% if task.status == 'proposed' %}
+                                        <span class="badge-status badge-proposed"><i class="bi bi-question-circle"></i> Đề xuất</span>
+                                    {% elif task.status == 'todo' %}
+                                        <span class="badge-status badge-todo"><i class="bi bi-list-task"></i> Cần làm</span>
+                                    {% elif task.status == 'in_progress' %}
+                                        <span class="badge-status badge-inprogress"><i class="bi bi-play-circle"></i> Đang làm</span>
+                                    {% elif task.status == 'pending_review' %}
+                                        <span class="badge-status badge-review"><i class="bi bi-eye"></i> Chờ duyệt</span>
+                                    {% elif task.status == 'completed' %}
+                                        <span class="badge-status badge-completed"><i class="bi bi-check-circle"></i> Hoàn thành</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if task.priority == 'high' %}
+                                        <span class="badge-priority badge-prio-high">Cao</span>
+                                    {% elif task.priority == 'medium' %}
+                                        <span class="badge-priority badge-prio-medium">Trung bình</span>
+                                    {% else %}
+                                        <span class="badge-priority badge-prio-low">Thấp</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-secondary small">{{ task.start_date or '-' }}</td>
+                                <td class="text-secondary small fw-semibold">{{ task.deadline }}</td>
+                                <td class="text-secondary small">@{{ task.creator_name or 'Hệ thống' }}</td>
+                                <td class="text-end">
+                                    <div class="d-inline-flex align-items-center gap-2 flex-wrap justify-content-end">
+                                        {% if is_admin or task.is_assigned_to_me %}
+                                            {% if task.status == "pending_review" and is_admin %}
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="{{ url_for('tasks.change_status', task_id=task.task_id, action_type=1) }}" class="btn btn-success py-1 px-2.5">
+                                                        <i class="bi bi-check-lg"></i> Duyệt
+                                                    </a>
+                                                    <a href="{{ url_for('tasks.change_status', task_id=task.task_id, action_type=2) }}" class="btn btn-danger py-1 px-2.5">
+                                                        <i class="bi bi-x-lg"></i> Từ chối
+                                                    </a>
+                                                </div>
+                                            {% elif task.status != "pending_review" and task.status != "completed" %}
+                                                {% if task.status == "proposed" %}
+                                                    {% if is_admin %}
+                                                        <a href="{{ url_for('tasks.change_status', task_id=task.task_id, action_type=1) }}" class="btn btn-sm btn-glass text-warning border-warning border-opacity-35 py-1 px-2.5">
+                                                            <i class="bi bi-check-circle me-1"></i> Duyệt Đề xuất
+                                                        </a>
+                                                    {% else %}
+                                                        <span class="text-warning small me-2">
+                                                            <i class="bi bi-hourglass-split me-1"></i>Đang chờ duyệt
+                                                        </span>
+                                                    {% endif %}
+                                                {% else %}
+                                                    <a href="{{ url_for('tasks.change_status', task_id=task.task_id, action_type=1) }}" class="btn btn-sm btn-glass text-info border-info border-opacity-35 py-1 px-2" title="Tiếp tục">
+                                                        <i class="bi bi-arrow-right"></i>
+                                                    </a>
+                                                {% endif %}
+                                            {% elif task.status == "completed" and is_admin %}
+                                                <a href="{{ url_for('tasks.change_status', task_id=task.task_id, action_type=2) }}" class="btn btn-sm btn-glass text-danger border-danger border-opacity-35 py-1 px-2.5">
+                                                    <i class="bi bi-arrow-counterclockwise me-1"></i> Yêu cầu lại
+                                                </a>
+                                            {% elif task.status == "pending_review" %}
+                                                <span class="text-secondary small me-2">Đang xem xét...</span>
+                                            {% else %}
+                                                <span class="text-success small fw-semibold me-2"><i class="bi bi-check2-all"></i> Hoàn tất</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="text-muted small me-2">Không có quyền</span>
+                                        {% endif %}
+
+                                        <a href="{{ url_for('tasks.edit_task', task_id=task.task_id) }}" class="btn btn-sm btn-glass text-primary" title="Chi tiết & Thảo luận">
+                                            <i class="bi bi-chat-left-text-fill"></i>
+                                        </a>
+                                        {% if is_admin %}
+                                        <a href="{{ url_for('tasks.delete_task', task_id=task.task_id) }}" class="btn btn-sm btn-glass text-danger" title="Xóa công việc" onclick="return confirm('Bạn có chắc chắn muốn xóa công việc này không?');">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center text-secondary py-4 small">
+                                    <i class="bi bi-info-circle me-1"></i> Chưa có công việc nào được thêm.
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function copyJoinCode() {
+    var copyText = document.getElementById("joinCodeText").innerText;
+    navigator.clipboard.writeText(copyText).then(function() {
+        alert("Đã sao chép mã mời vào bộ nhớ tạm: " + copyText);
+    }, function(err) {
+        console.error('Không thể sao chép: ', err);
+    });
+}
+</script>
+{% endblock %}
