@@ -84,10 +84,14 @@ Yêu cầu đã cài đặt **Docker** và **Docker Compose**. Tại thư mục 
 ```bash
 docker-compose up --build
 ```
+hoặc
+```bash
+docker compose up --build
+```
 Ứng dụng sẽ được khởi chạy tại địa chỉ: `http://localhost:5000`
 
 ### 4. Chạy trực tiếp ở Local (Không dùng Docker)
-1. Cài đặt Python (phiên bản 3.9 trở lên).
+1. Cài đặt Python (phiên bản 3.10 trở lên).
 2. Tạo môi trường ảo và kích hoạt:
    ```bash
    python -m venv venv
@@ -106,6 +110,6 @@ docker-compose up --build
 ---
 
 ## 👥 Thành viên thực hiện
-- Thành viên 1: [Họ và Tên] - [Mã sinh viên]
-- Thành viên 2: [Họ và Tên] - [Mã sinh viên]
-- Thành viên 3: [Họ và Tên] - [Mã sinh viên]
+- Thành viên 1: Phạm Đức Khôi - 2221050315
+- Thành viên 2: Nguyễn Đăng Duy - 2221050524
+- Thành viên 3: Nguyễn Cúc Mai - 2221050515
