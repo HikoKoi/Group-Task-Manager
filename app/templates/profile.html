@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Hồ Sơ Cá Nhân - GTM{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="glass-panel p-4 p-sm-5">
+            <div class="text-center mb-4">
+                <div class="display-6 text-info mb-2"><i class="bi bi-person-gear"></i></div>
+                <h2 class="h3 fw-bold text-light mb-1">Hồ Sơ Cá Nhân</h2>
+                <p class="text-secondary small">Cập nhật thông tin tài khoản và mật khẩu của bạn</p>
+            </div>
+
+            {% if error %}
+            <div class="alert alert-danger bg-danger bg-opacity-10 border-danger border-opacity-20 text-danger small" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error }}
+            </div>
+            {% endif %}
+
+            {% if success %}
+            <div class="alert alert-success bg-success bg-opacity-10 border-success border-opacity-20 text-success small" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i>{{ success }}
+            </div>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('auth.profile') }}">
+                <!-- Tên đăng nhập (Read-only) -->
+                <div class="mb-3">
+                    <label class="form-label text-secondary small">Tên đăng nhập (Không thể thay đổi)</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0 border-glass text-muted">
+                            <i class="bi bi-person-lock"></i>
+                        </span>
+                        <input type="text" class="form-control form-control-glass border-start-0 text-muted" value="{{ user.username }}" readonly>
+                    </div>
+                </div>
+
+                <!-- Họ và Tên -->
+                <div class="mb-3">
+                    <label class="form-label text-secondary small">Họ và Tên</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0 border-glass text-secondary">
+                            <i class="bi bi-person-badge"></i>
+                        </span>
+                        <input name="full_name" type="text" class="form-control form-control-glass border-start-0" placeholder="Nguyễn Văn A" value="{{ user.full_name or '' }}">
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div class="mb-3">
+                    <label class="form-label text-secondary small">Email</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0 border-glass text-secondary">
+                            <i class="bi bi-envelope"></i>
+                        </span>
+                        <input name="email" type="email" class="form-control form-control-glass border-start-0" placeholder="name@example.com" value="{{ user.email or '' }}">
+                    </div>
+                </div>
+
+                <!-- Số điện thoại -->
+                <div class="mb-4">
+                    <label class="form-label text-secondary small">Số điện thoại</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0 border-glass text-secondary">
+                            <i class="bi bi-telephone"></i>
+                        </span>
+                        <input name="phone" type="text" class="form-control form-control-glass border-start-0" placeholder="09xxxxxxxx" value="{{ user.phone or '' }}">
+                    </div>
+                </div>
+
+                <hr class="border-glass my-4">
+                <div class="text-secondary small mb-3 fw-semibold"><i class="bi bi-key-fill me-1"></i>Thay đổi mật khẩu (Để trống nếu giữ nguyên)</div>
+
+                <!-- Mật khẩu mới -->
+                <div class="mb-3">
+                    <label class="form-label text-secondary small">Mật khẩu mới</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0 border-glass text-secondary">
+                            <i class="bi bi-lock"></i>
+                        </span>
+                        <input name="new_password" type="password" id="newPasswordInput" class="form-control form-control-glass border-start-0 border-end-0" placeholder="••••••••">
+                        <button class="btn btn-glass border-start-0 border-glass" type="button" onclick="togglePasswordVisibility('newPasswordInput', 'newPasswordToggleIcon')">
+                            <i class="bi bi-eye text-secondary" id="newPasswordToggleIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Nhập lại mật khẩu mới -->
+                <div class="mb-4">
+                    <label class="form-label text-secondary small">Nhập lại mật khẩu mới</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0 border-glass text-secondary">
+                            <i class="bi bi-lock-fill"></i>
+                        </span>
+                        <input name="confirm_password" type="password" id="confirmPasswordInput" class="form-control form-control-glass border-start-0 border-end-0" placeholder="••••••••">
+                        <button class="btn btn-glass border-start-0 border-glass" type="button" onclick="togglePasswordVisibility('confirmPasswordInput', 'confirmPasswordToggleIcon')">
+                            <i class="bi bi-eye text-secondary" id="confirmPasswordToggleIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-gradient w-100 py-2.5">
+                    <i class="bi bi-floppy me-2"></i>Lưu Thay Đổi
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Đăng Nhập - GTM{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 70vh;">
+    <div class="col-md-5 col-lg-4">
+        <div class="glass-panel p-4 p-sm-5">
+            <div class="text-center mb-4">
+                <div class="h2 font-weight-bold gradient-text mb-1">Đăng Nhập</div>
+                <p class="text-secondary small">Quản lý công việc nhóm hiệu quả hơn</p>
+            </div>
+
+            {% if error %}
+            <div class="alert alert-danger bg-danger bg-opacity-10 border-danger border-opacity-20 text-danger small" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error }}
+            </div>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('auth.login') }}">
+                <div class="mb-3">
+                    <label class="form-label text-secondary small">Username, Email hoặc Số điện thoại</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0 border-glass text-secondary">
+                            <i class="bi bi-person"></i>
+                        </span>
+                        <input name="username" type="text" class="form-control form-control-glass border-start-0" placeholder="Nhập tài khoản của bạn" required>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label text-secondary small">Mật khẩu</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0 border-glass text-secondary">
+                            <i class="bi bi-lock"></i>
+                        </span>
+                        <input name="password" type="password" id="passwordInput" class="form-control form-control-glass border-start-0 border-end-0" placeholder="••••••••" required>
+                        <button class="btn btn-glass border-start-0 border-glass" type="button" onclick="togglePasswordVisibility('passwordInput', 'passwordToggleIcon')">
+                            <i class="bi bi-eye text-secondary" id="passwordToggleIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-gradient w-100 py-2.5 mb-3">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Đăng Nhập
+                </button>
+
+                <div class="text-center text-secondary small">
+                    Chưa có tài khoản? 
+                    <a href="{{ url_for('auth.register') }}" class="text-light text-decoration-none fw-bold hover-underline">Đăng ký ngay</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

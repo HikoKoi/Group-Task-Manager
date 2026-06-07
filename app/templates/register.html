@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Đăng Ký Tài Khoản - GTM{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 75vh;">
+    <div class="col-md-6 col-lg-5">
+        <div class="glass-panel p-4 p-sm-5">
+            <div class="text-center mb-4">
+                <div class="h2 font-weight-bold gradient-text mb-1">Đăng Ký</div>
+                <p class="text-secondary small">Bắt đầu quản lý công việc nhóm cùng GTM</p>
+            </div>
+
+            {% if error %}
+            <div class="alert alert-danger bg-danger bg-opacity-10 border-danger border-opacity-20 text-danger small" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error }}
+            </div>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('auth.register') }}">
+                <div class="mb-3">
+                    <label class="form-label text-secondary small">Tên đăng nhập <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0 border-glass text-secondary">
+                            <i class="bi bi-person"></i>
+                        </span>
+                        <input name="username" type="text" class="form-control form-control-glass border-start-0" placeholder="username" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-secondary small">Họ và Tên</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0 border-glass text-secondary">
+                            <i class="bi bi-person-badge"></i>
+                        </span>
+                        <input name="full_name" type="text" class="form-control form-control-glass border-start-0" placeholder="Nguyễn Văn A">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-secondary small">Email</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0 border-glass text-secondary">
+                            <i class="bi bi-envelope"></i>
+                        </span>
+                        <input name="email" type="email" class="form-control form-control-glass border-start-0" placeholder="name@example.com">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-secondary small">Số điện thoại</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0 border-glass text-secondary">
+                            <i class="bi bi-telephone"></i>
+                        </span>
+                        <input name="phone" type="text" class="form-control form-control-glass border-start-0" placeholder="09xxxxxxxx">
+                    </div>
+                </div>
+
+                 <div class="mb-3">
+                    <label class="form-label text-secondary small">Mật khẩu <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0 border-glass text-secondary">
+                            <i class="bi bi-lock"></i>
+                        </span>
+                        <input name="password" type="password" id="passwordInput" class="form-control form-control-glass border-start-0 border-end-0" placeholder="••••••••" required>
+                        <button class="btn btn-glass border-start-0 border-glass" type="button" onclick="togglePasswordVisibility('passwordInput', 'passwordToggleIcon')">
+                            <i class="bi bi-eye text-secondary" id="passwordToggleIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label text-secondary small">Nhập lại mật khẩu <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0 border-glass text-secondary">
+                            <i class="bi bi-lock-fill"></i>
+                        </span>
+                        <input name="confirm_password" type="password" id="confirmPasswordInput" class="form-control form-control-glass border-start-0 border-end-0" placeholder="••••••••" required>
+                        <button class="btn btn-glass border-start-0 border-glass" type="button" onclick="togglePasswordVisibility('confirmPasswordInput', 'confirmPasswordToggleIcon')">
+                            <i class="bi bi-eye text-secondary" id="confirmPasswordToggleIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-gradient w-100 py-2.5 mb-3">
+                    <i class="bi bi-person-plus me-2"></i>Đăng Ký Tài Khoản
+                </button>
+
+                <div class="text-center text-secondary small">
+                    Đã có tài khoản? 
+                    <a href="{{ url_for('auth.login') }}" class="text-light text-decoration-none fw-bold hover-underline">Đăng nhập</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
